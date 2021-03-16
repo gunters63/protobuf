@@ -1765,15 +1765,16 @@ void Generator::GenerateProvides(const GeneratorOptions& options,
 }
 
 void Generator::GenerateExports(const GeneratorOptions& options,
-    io::Printer* printer,
-    std::set<std::string>* provided) const {
+								io::Printer* printer,
+								const FileDescriptor* file,
+								std::set<std::string>* provided) const {
     printer->Print("export const {\n");
     for (std::set<std::string>::iterator it = provided->begin();
         it != provided->end(); ++it) {
 	    auto export_name = it->substr(it->rfind(".") + 1);
         printer->Print("  $name$,\n", "name", export_name);
     }
-    printer->Print("} = proto;\n");
+    printer->Print("} = $name$;\n", "name", GetNamespace(options, file));
 }
 
 void Generator::GenerateRequiresForSCC(const GeneratorOptions& options,
@@ -3721,7 +3722,7 @@ void Generator::GenerateFile(const GeneratorOptions& options,
                    GetNamespace(options, file));
   } else if (options.import_style == GeneratorOptions::kImportEs6)
   {
-      GenerateExports(options, printer, &provided);
+      GenerateExports(options, printer, file, &provided);
   }
 
   // Emit well-known type methods.
